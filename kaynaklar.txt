@@ -10,6 +10,9 @@ KURULUM:
 Öncelikle Docker kurulumu yapmalısın.
 Daha sonra Ollama kurulumu yapmalısın.
 Daha sonra NodeJS kurulumu yapmalısın. Detaylar: https://nodejs.org/en/download
+Bu komutu çalıştır:
+ollama pull embeddinggemma
+ollama run gemma3:4b
 
 KURULUM 2:
 docker_qdrant, docker_postgredb ve docker_redis klasörleri içinde aşağıdaki komudu çalıştır.
