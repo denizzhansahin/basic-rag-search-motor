@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  redis_server:
+      image: redis:alpine
+      container_name: rag_redis
+      ports:
+        - "6379:6379"
+      # Verilerin diske kaydedilmesini (persistence) tamamen kapatıyoruz:
+      command: ["redis-server", "--save", "", "--appendonly", "no"]
+      restart: "no"

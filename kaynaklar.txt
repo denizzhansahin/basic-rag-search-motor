@@ -1,0 +1,107 @@
+https://ollama.com/library/embeddinggemma:latest
+https://docs.ollama.com/capabilities/embeddings
+
+
+
+
+
+
+KURULUM:
+Öncelikle Docker kurulumu yapmalısın.
+Daha sonra Ollama kurulumu yapmalısın.
+Daha sonra NodeJS kurulumu yapmalısın. Detaylar: https://nodejs.org/en/download
+
+KURULUM 2:
+docker_qdrant, docker_postgredb ve docker_redis klasörleri içinde aşağıdaki komudu çalıştır.
+docker compose up -d
+
+
+KURULUM 3: Python ortamına aşağıdakileri kurmalısın.
+pip install ollama
+pip install langchain langchain-community langchain-core qdrant-client pypdf selenium 
+pip install unstructured selenium
+pip install -U langchain-ollama
+pip install -U langchain-qdrant
+pip install -U langchain langchain-community langchain-core langchain-ollama langchain-qdrant
+pip install streamlit
+pip install rq
+
+
+
+
+
+
+
+PROGRAM ÇALIŞTIRMA:
+Oluşturulan tüm Docker konteynerlerini çalıştır, Docker Desktop ile yapabilirsin.
+
+web_crawler klasörüne giriş yap, klasör içinde bunu çalıştır:
+export PYTHONPATH=$PYTHONPATH:.
+python site_manager.py
+
+
+web_crawler klasörü içinde bunu çalıştır-düşük seviye işlemcin var ise:
+python redis_queue.py
+
+eğer güçlü bir işlemcin var ise ,  web_crawler içinde bunu çalıştır:
+python redis_queue_worker.py
+
+Admin panel ile siteleri ekleyebilirsin. Siteleri ise https:// veya http:// olarak ekle, ana alan adını eklemelisin, tercihi olarak her bir site için varsayılan arama sayfa sayısını değiştirmeyin:
+web_crawler içinde bunu çalıştır:
+export STREAMLIT_WATCHER_TYPE=none
+streamlit run admin_panel.py
+Örnek site ekleme : https://www.denizhansahin.com 
+
+Arama motoruna ulaşmak için, search_web içinde bunu çalıştır:
+export STREAMLIT_WATCHER_TYPE=none
+streamlit run search_app.py
+
+
+Eğer sohbet robotuna ulaşmak istersen:
+ollama_run klasörü içine gir:
+export STREAMLIT_WATCHER_TYPE=none
+streamlit run app.py
+
+
+Verileri Manuel Yönetmek İçin İpuçları
+Eğer Redis çalışırken içindeki her şeyi tek komutla silmek istersen (konteyneri kapatmadan), terminalden şu komutu vermen yeterli:
+docker exec -it rag_redis redis-cli FLUSHALL
+
+
+
+
+
+
+
+BURDAN SONRASINI OKUMA BOŞVER:
+selenium:
+    # --- 1. SELENIUM KİMLİK GİZLEME (USER-AGENT) AYARLARI ---
+    chrome_options = Options()
+    chrome_options.add_argument("--headless") # Tarayıcıyı ekranda göstermeden arka planda çalıştır
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
+
+    # RESİMLERİ YÜKLEMEYİ KAPAT (En büyük hız artışı buradan gelir)
+    prefs = {
+        "profile.managed_default_content_settings.images": 2,
+        "profile.default_content_setting_values.notifications": 2,
+        "profile.managed_default_content_settings.stylesheets": 2 # İstersen CSS'i de kapatabilirsin (opsiyonel)
+    }
+    chrome_options.add_experimental_option("prefs", prefs)
+
+
+HATALI:
+4. Adım: Worker'ı Çalıştırma//////burayı atla hatalı olabilir
+Artık embedding_url fonksiyonunun olduğu dosya bir "Worker" gibi davranacak. Terminalde yeni bir sekme aç ve projenin olduğu klasörde şu komutu çalıştır:
+Bash
+rq worker
+# Proje ana dizinindeyken
+# Önce ana proje klasörüne git
+cd /Users/denizhan/Desktop/arama_motoru_RAG/
+
+# Python'a şu anki klasördeki paketleri görmesini 
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+export PYTHONPATH=$PYTHONPATH:.
+
+# Worker'ı buradan başlat
+rq worker

@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  # ... (Varsa Qdrant ayarların burada kalabilir) ...
+
+  postgres_db:
+    image: postgres:15
+    container_name: rag_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: gizlisifrem # Kendi şifreni belirle
+      POSTGRES_DB: arama_motoru_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data # Konteyner kapansa bile verilerin silinmemesi için
+    restart: "no"
