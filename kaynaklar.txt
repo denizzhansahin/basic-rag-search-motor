@@ -57,7 +57,7 @@ streamlit run admin_panel.py
 
 Arama motoruna ulaşmak için, search_web içinde bunu çalıştır:
 export STREAMLIT_WATCHER_TYPE=none
-streamlit run search_app.py
+streamlit run main_app.py
 
 
 Eğer sohbet robotuna ulaşmak istersen:
