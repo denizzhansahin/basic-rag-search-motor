@@ -9,7 +9,11 @@ from pathlib import Path
 
 
 
+# Şu anki dosyanın bulunduğu klasörü bul ve bir üst klasöre git
+base_path = Path(__file__).resolve().parent.parent 
+sys.path.append(str(base_path))
 
+from web_crawler.config import DB_URL
 
 
 import streamlit as st
@@ -22,7 +26,7 @@ import sys
 from pathlib import Path
 
 # --- AYARLAR VE BAĞLANTI ---
-DB_URL = "postgresql+psycopg2://postgres:gizlisifrem@127.0.0.1:5432/arama_motoru_db"
+#DB_URL = "postgresql+psycopg2://postgres:gizlisifrem@127.0.0.1:5432/arama_motoru_db"
 engine = create_engine(DB_URL)
 
 st.set_page_config(page_title="RAG Komuta Merkezi", layout="wide")

@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  /* --- ANA RENKLER --- */
+  --color-primary: #000000;
+  --color-background-light: #FFFFFF;
+  --color-background: #FFFFFF;
+  
+  /* --- YÜZEY VE ARAMA KUTUSU RENKLERİ --- */
+  --color-search-bg: #F9FAFB;
+  --color-surface: #FAFAFA;
+  --color-surface-hover: #F3F4F6;
+  
+  /* --- KENARLIKLAR (BORDERS) --- */
+  --color-search-border: #E5E7EB;
+  --color-border-light: #E5E5E5;
+  
+  /* --- METİN RENKLERİ (TYPOGRAPHY) --- */
+  --color-text-main: #1e293b;
+  --color-text-muted: #6B7280;
+  --color-text-subtle: #94a3b8;
+  
+  /* --- VURGU RENKLERİ (ACCENTS) --- */
+  --color-accent: #64748b;
+  --color-accent-light: #e2e8f0;
+
+  /* --- FONTLAR --- */
+  --font-display: "Inter", sans-serif;
+}
+
+/* --- TEMEL GÖVDE (BODY) AYARLARI --- */
+body {
+  font-family: var(--font-display);
+  background-color: var(--color-background-light);
+  color: var(--color-text-main);
+  margin: 0;
+  padding: 0;
+  /* Yazıların ekranda daha pürüzsüz ve şık durması için: */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar'ı modernleştirme (Opsiyonel ama şık durur) */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

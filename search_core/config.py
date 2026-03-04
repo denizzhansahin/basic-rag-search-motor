@@ -5,3 +5,7 @@ DB_AYARLARI = {
     "password": "gizlisifrem",
     "port": "5432"
 }
+
+
+QDRANT_URL="http://localhost:6333"
+COLLECTION_NAME="ollama_my_rag_collection"

@@ -1,12 +1,14 @@
+import sys
+from pathlib import Path
+
+base_path = Path(__file__).resolve().parent.parent
+sys.path.append(str(base_path))
+
 import psycopg2
 
-DB_AYARLARI = {
-    "host": "localhost",
-    "database": "arama_motoru_db",
-    "user": "postgres",
-    "password": "gizlisifrem",
-    "port": "5432"
-}
+from search_core.config import DB_AYARLARI
+
+
 
 
 def keyword_search(query, limit=30):

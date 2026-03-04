@@ -24,7 +24,7 @@ with st.sidebar:
     results_per_page = st.slider("Sayfa Başına Sonuç", 5, 20, 10)
     ai_mode = st.toggle("Yapay Zeka (RAG) Aktif", value=True)
     st.divider()
-    st.info("Space Teknopoli: M4 Power 🚀 - Önbellekli Mimari Aktif")
+    st.info("Space Teknopoli, teknoloji ve uzay temalı içeriklerde hızlı ve akıllı arama deneyimi sunar. Yapay zeka destekli sonuçlarla aramalarınızı güçlendirin!")
 
 # ==========================================
 # YAPAY ZEKA ÖNBELLEK FONKSİYONU

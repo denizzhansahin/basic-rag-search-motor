@@ -1,0 +1,7 @@
+KURULUM:
+npm create vite@latest vite_frontend_search -- --template react-ts
+cd vite_frontend_search
+npm install
+npm install socket.io-client lucide-react
+npm install -D tailwindcss @tailwindcss/postcss autoprefixer
+npm install react-router-dom

@@ -6,6 +6,11 @@ base_path = Path(__file__).resolve().parent.parent
 sys.path.append(str(base_path))
 
 
+from web_crawler.config import REDIS_HOST, REDIS_PORT
+
+
+
+
 from embedding.embedding_save_qdrant import qdranta_kaydet
 import redis
 import time
@@ -17,7 +22,7 @@ import time
 from embedding.embeddin_url_selenium import embedding_url
 
 # Redis bağlantısı
-r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0, decode_responses=True)
 
 def kuyruk_dinleyici():
     print("🚀 Link İşleyici (Consumer) başlatıldı. Kuyruk bekleniyor...")

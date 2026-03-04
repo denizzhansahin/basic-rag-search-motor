@@ -1,10 +1,13 @@
+from embedding.config import COLLECTION_NAME, QDRANT_URL
 import qdrant_client
 from langchain_qdrant import QdrantVectorStore
 from langchain_ollama import OllamaEmbeddings
 from qdrant_client.http.models import Distance, VectorParams
 
 
-def qdranta_kaydet(belge_parcalari, collection_name="ollama_my_rag_collection"):
+
+
+def qdranta_kaydet(belge_parcalari, collection_name=COLLECTION_NAME):
     """
     Dışarıdan gelen metin parçalarını alır, embeddinggemma ile vektöre çevirir
     ve Docker üzerindeki Qdrant veritabanına kaydeder.
@@ -22,7 +25,7 @@ def qdranta_kaydet(belge_parcalari, collection_name="ollama_my_rag_collection"):
 
     try:
         # 1. Docker'daki Qdrant'a bağlan
-        client = qdrant_client.QdrantClient(url="http://localhost:6333")
+        client = qdrant_client.QdrantClient(url=QDRANT_URL)
         
         # 2. Embedding modelini tanımla
         embeddings = OllamaEmbeddings(model="embeddinggemma")

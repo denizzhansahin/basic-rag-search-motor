@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Space Teknopoli - Tam API Testi</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; background: #121212; color: #e0e0e0; }
+        h2 { color: #fff; }
+        input { padding: 12px; width: 350px; border-radius: 6px; border: 1px solid #444; background: #2a2a2a; color: #fff; font-size: 16px; }
+        button { padding: 12px 24px; border-radius: 6px; border: none; background: #007bff; color: white; cursor: pointer; font-size: 16px; margin-left: 10px;}
+        button:hover { background: #0056b3; }
+        #log { margin-top: 25px; display: flex; flex-direction: column; gap: 15px; }
+        
+        /* Kart Tasarımları */
+        .card { padding: 15px; background: #1e1e1e; border-radius: 8px; border-left: 5px solid #555; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .card.classic { border-color: #4CAF50; }
+        .card.ai-summary { border-color: #FF9800; background: #2c2214; }
+        .card.ai-top { border-color: #E91E63; }
+        .card.ai-sug { border-color: #03A9F4; }
+        
+        .title { font-weight: bold; margin-bottom: 10px; font-size: 18px; }
+        .classic-title { color: #4CAF50; }
+        .ai-title { color: #FF9800; }
+        .top-title { color: #E91E63; }
+        .sug-title { color: #03A9F4; }
+        
+        .result-item { margin-bottom: 8px; font-size: 14px; padding-bottom: 8px; border-bottom: 1px solid #333; }
+        .result-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        a { color: #5dade2; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .score { color: #aaa; font-size: 12px; background: #333; padding: 2px 6px; border-radius: 4px; margin-left: 10px;}
+    </style>
+</head>
+<body>
+
+    <h2>🛸 Space Teknopoli API Test</h2>
+    <div style="display: flex; align-items: center;">
+        <input type="text" id="queryInput" placeholder="Arama yap (Örn: teknoloji)..." onkeydown="if(event.key === 'Enter') aramaYap()"/>
+        <button onclick="aramaYap()">Sorgula</button>
+    </div>
+
+    <div id="log"></div>
+
+    <script>
+        const socket = io('http://localhost:3000');
+        const logDiv = document.getElementById('log');
+
+        socket.on('connect', () => {
+            logDiv.innerHTML += `<div class="card">🟢 <b>NestJS Gateway'e bağlanıldı!</b> (Bekleniyor...)</div>`;
+        });
+
+        socket.on('arama_sonucu', (data) => {
+            // 1. KLASİK SONUÇLAR (HIZLI ARAMA + SKORLAR)
+            if (data.type === 'CLASSIC_RESULTS') {
+                let html = `<div class="card classic">`;
+                html += `<div class="title classic-title">⚡ Klasik Arama Sonuçları (İlk 20)</div>`;
+                data.data.forEach((item, index) => {
+                    // Skorları yuvarlayıp formatlıyoruz
+                    let score = item.score ? item.score.toFixed(4) : "0.0000";
+                    html += `<div class="result-item">
+                                <b>${index + 1}.</b> <a href="${item.url}" target="_blank">${item.title || 'Başlık Yok'}</a> 
+                                <span class="score">Skor: ${score}</span>
+                             </div>`;
+                });
+                html += `</div>`;
+                
+                // AI Bekleniyor Kartı
+                html += `<div class="card" id="ai-waiting">⏳ Yapay zeka sonuçları analiz ediyor... Lütfen bekleyin.</div>`;
+                
+                logDiv.innerHTML += html;
+            } 
+            // 2. YAPAY ZEKA VERİLERİ (ÖZET + RERANKED + ÖNERİLER)
+            else if (data.type === 'AI_RESULTS') {
+                // Bekleniyor yazısını kaldır
+                const waitingDiv = document.getElementById('ai-waiting');
+                if(waitingDiv) waitingDiv.remove();
+
+                // 2.A: AI Özeti
+                let html = `<div class="card ai-summary">
+                                <div class="title ai-title">✨ Yapay Zeka Özeti</div>
+                                <div style="line-height: 1.6;">${data.summary}</div>
+                            </div>`;
+                
+                // 2.B: AI Tarafından Yeniden Sıralanan En İyi Sonuçlar (Reranked)
+                if (data.top_results && data.top_results.length > 0) {
+                    html += `<div class="card ai-top">
+                                <div class="title top-title">🚀 AI Destekli En İyi ${data.top_results.length} Sonuç (Reranked)</div>`;
+                    data.top_results.forEach(item => {
+                        let score = item.score ? item.score.toFixed(4) : "0.0000";
+                        html += `<div class="result-item">
+                                    <a href="${item.url}" target="_blank"><b>${item.title || 'Başlık Yok'}</b></a>
+                                    <span class="score">Yeni AI Skoru: ${score}</span>
+                                 </div>`;
+                    });
+                    html += `</div>`;
+                }
+
+                // 2.C: AI Önerileri (Suggestions)
+                if (data.suggestions && data.suggestions.length > 0) {
+                    html += `<div class="card ai-sug">
+                                <div class="title sug-title">💡 Daha Fazlasını Keşfet (AI Önerileri)</div>`;
+                    data.suggestions.forEach(item => {
+                        html += `<div class="result-item">🔗 <a href="${item.url}" target="_blank">${item.title}</a></div>`;
+                    });
+                    html += `</div>`;
+                }
+
+                logDiv.innerHTML += html;
+            }
+        });
+
+        socket.on('islem_bitti', () => {
+            logDiv.innerHTML += `<div class="card" style="border-color: #fff; text-align: center;">✅ Veri akışı tamamlandı.</div>`;
+        });
+
+        socket.on('hata', (err) => {
+            logDiv.innerHTML += `<div class="card" style="border-color: red; color: red;">❌ HATA: ${err.message}</div>`;
+        });
+
+        function aramaYap() {
+            const query = document.getElementById('queryInput').value;
+            // Ekrana taze bir başlangıç atalım
+            logDiv.innerHTML = `<div class="card">🚀 <b>Sorgu gönderildi:</b> "${query}"</div>`;
+            socket.emit('arama_yap', { query: query });
+        }
+    </script>
+</body>
+</html>

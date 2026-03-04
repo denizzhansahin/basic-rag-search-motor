@@ -1,3 +1,4 @@
+from embedding.config import COLLECTION_NAME, QDRANT_URL
 import qdrant_client
 
 from langchain_qdrant import QdrantVectorStore
@@ -8,12 +9,12 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 
-def soru_sor(soru, sohbet_gecmisi="", collection_name="ollama_my_rag_collection"):
+def soru_sor(soru, sohbet_gecmisi="", collection_name=COLLECTION_NAME):
 
     print(f"'{soru}' sorusu için veritabanında arama yapılıyor...\n")
 
     try:
-        client = qdrant_client.QdrantClient(url="http://localhost:6333")
+        client = qdrant_client.QdrantClient(url=QDRANT_URL)
         embeddings = OllamaEmbeddings(model="embeddinggemma")
 
         vector_store = QdrantVectorStore(

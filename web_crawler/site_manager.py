@@ -1,11 +1,14 @@
 import sys
 from pathlib import Path
 
-from crawler_web_selenium import otomatik_site_tarayici
-
 # Şu anki dosyanın bulunduğu klasörü bul ve bir üst klasöre git
 base_path = Path(__file__).resolve().parent.parent 
 sys.path.append(str(base_path))
+
+from crawler_web_selenium import otomatik_site_tarayici
+from search_core.config import DB_AYARLARI
+
+
 
 
 
@@ -14,13 +17,6 @@ import psycopg2
 from datetime import datetime, timedelta
 import time
 
-DB_AYARLARI = { 
-    "host": "localhost", 
-    "database": "arama_motoru_db", 
-    "user": "postgres", 
-    "password": "gizlisifrem", 
-    "port": "5432" 
-}
 
 def siradaki_siteyi_tara():
     baglanti = None

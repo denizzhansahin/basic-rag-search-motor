@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+from postgresql_islem.config import DB_AYARLARI, REDIS_HOST, REDIS_PORT
+
 # Şu anki dosyanın bulunduğu klasörü bul ve bir üst klasöre git
 base_path = Path(__file__).resolve().parent.parent 
 sys.path.append(str(base_path))
@@ -16,18 +18,11 @@ from embedding.embeddin_url_selenium import embedding_url
 import random
 import time
 
-# 1. Veritabanı ve Redis Ayarları
-DB_AYARLARI = {
-    "host": "localhost",
-    "database": "arama_motoru_db",
-    "user": "postgres",
-    "password": "gizlisifrem",
-    "port": "5432"
-}
+
 
 # Redis Bağlantısı
 try:
-    redis_conn = Redis(host='localhost', port=6379)
+    redis_conn = Redis(host=REDIS_HOST, port=REDIS_PORT)
     # Redis'in açık olup olmadığını test et
     redis_conn.ping()
     q = Queue(connection=redis_conn)

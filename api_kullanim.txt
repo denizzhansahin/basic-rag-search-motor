@@ -1,0 +1,19 @@
+KURULUM:
+pip install fastapi uvicorn websockets
+pip install python-dotenv
+
+Cihazına NodeJS kurmalısın:
+https://nodejs.org/en/download 
+Cihazına NestJS kurmalısın: 
+https://docs.nestjs.com/
+Paketleri kur:
+npm install @nestjs/websockets @nestjs/platform-socket.io ws
+npm install --save-dev @types/ws
+@nestjs/config
+nest g module search
+nest g gateway search
+
+
+python_api için giriş yap ve bunu çalıştır:
+export PYTHONPATH=$PYTHONPATH:..
+uvicorn api_server:app --host 0.0.0.0 --port 8000 --reload

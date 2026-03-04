@@ -1,9 +1,13 @@
-import psycopg2
+import sys
+from pathlib import Path
 
-DB_AYARLARI = {
-    "host":"localhost","database":"arama_motoru_db",
-    "user":"postgres","password":"gizlisifrem","port":"5432"
-}
+base_path = Path(__file__).resolve().parent.parent
+sys.path.append(str(base_path))
+
+import psycopg2
+from search_core.config import DB_AYARLARI
+
+
 
 def save_search(query):
     conn=psycopg2.connect(**DB_AYARLARI)

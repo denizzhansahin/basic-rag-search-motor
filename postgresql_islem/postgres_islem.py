@@ -1,14 +1,14 @@
 import psycopg2
 from psycopg2 import sql
+import sys
+from pathlib import Path
 
-# Docker'da belirlediğimiz bilgiler
-DB_AYARLARI = {
-    "host": "localhost",
-    "database": "arama_motoru_db",
-    "user": "postgres",
-    "password": "gizlisifrem",
-    "port": "5432"
-}
+# Şu anki dosyanın bulunduğu klasörü bul ve bir üst klasöre git
+base_path = Path(__file__).resolve().parent.parent 
+sys.path.append(str(base_path))
+
+from postgresql_islem.config import DB_AYARLARI
+
 
 
 def hedef_siteler_tablosu_olustur():

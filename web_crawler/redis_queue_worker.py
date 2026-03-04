@@ -5,6 +5,11 @@ from pathlib import Path
 base_path = Path(__file__).resolve().parent.parent 
 sys.path.append(str(base_path))
 
+from web_crawler.config import REDIS_HOST, REDIS_PORT
+
+
+
+
 
 import time
 import multiprocessing
@@ -19,7 +24,7 @@ def isci_baslat(worker_no):
     Her bir Process (işçi) kendi bağımsız Redis bağlantısını ve durumunu yönetir.
     """
     # Redis bağlantısını worker'ın kendi içinde açması multiprocessing için daha sağlıklıdır
-    r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+    r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=0, decode_responses=True)
     worker_id = f"worker_{worker_no}_{int(time.time())}"
     
     # Sisteme bu worker'ı kayıt et
