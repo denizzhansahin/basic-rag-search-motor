@@ -1,4 +1,6 @@
-from embedding.config import COLLECTION_NAME, QDRANT_URL
+import os
+
+from embedding.config import COLLECTION_NAME, EMBEDDING_MODEL, OLLAMA_BASE_URL, QDRANT_URL
 import qdrant_client
 
 from langchain_qdrant import QdrantVectorStore
@@ -15,7 +17,7 @@ def soru_sor(soru, sohbet_gecmisi="", collection_name=COLLECTION_NAME):
 
     try:
         client = qdrant_client.QdrantClient(url=QDRANT_URL)
-        embeddings = OllamaEmbeddings(model="embeddinggemma")
+        embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL, base_url=OLLAMA_BASE_URL)
 
         vector_store = QdrantVectorStore(
             client=client,
@@ -24,7 +26,7 @@ def soru_sor(soru, sohbet_gecmisi="", collection_name=COLLECTION_NAME):
         )
 
         retriever = vector_store.as_retriever(search_kwargs={"k": 3})
-        llm = OllamaLLM(model="gemma3:4b")
+        llm = OllamaLLM(model=OLLAMA_BASE_URL,base_url=OLLAMA_BASE_URL,)
 
         # Prompt'a "Önceki Sohbet Geçmişi" bölümü eklendi
         prompt = ChatPromptTemplate.from_template("""

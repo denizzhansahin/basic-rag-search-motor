@@ -1,0 +1,87 @@
+services:
+  # 1. REDIS (Mesaj Trafiği)
+  redis_broker:
+    image: redis:7-alpine
+    container_name: redis_broker
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+
+  # 2. QDRANT (Vektör Veritabanı)
+  # qdrant:
+  #   image: qdrant/qdrant:latest
+  #   container_name: my_qdrant_db_arama_motoru_yeni
+  #   ports:
+  #     - "6333:6333"
+  #   volumes:
+  #     - ./qdrant_data:/qdrant/storage
+  #   restart: "always" # Sistemle beraber kalkması daha iyidir
+
+  # # 3. POSTGRESQL (Klasik Veritabanı)
+  # postgres_db:
+  #   image: postgres:15
+  #   container_name: rag_postgres_yeni
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: gizlisifrem
+  #     POSTGRES_DB: arama_motoru_db
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - ./pg_data:/var/lib/postgresql/data
+  #   restart: "always"
+
+  # 4. NESTJS GATEWAY
+  nestjs_gateway:
+    build: ../nest_api
+    container_name: nestjs_gateway
+    env_file: ../nest_api/.env.docker
+    ports: ["3000:3000"]
+    command: npm run start:dev
+    #depends_on:
+      #redis_broker: { condition: service_healthy }
+      #postgres_db: { condition: service_started }
+
+  # 5. PYTHON AI WORKER
+  python_worker:
+    build:
+      context: ../
+      dockerfile: ./python_api/Dockerfile
+    container_name: python_worker
+    env_file: ../python_api/.env.docker
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    command: python /app/python_api/worker_docker.py
+    #depends_on:
+      #redis_broker: { condition: service_healthy }
+      #qdrant: { condition: service_started }
+
+    # ... (Diğer servislerin altında)
+  
+  frontend_vite:
+    build: 
+      context: ../
+      dockerfile: ./vite_frontend_search/Dockerfile
+    container_name: vite_frontend
+    ports:
+      - "5173:5173"
+    env_file: ../vite_frontend_search/.env.docker
+    volumes:
+      - ../vite_frontend_search:/app
+      - /app/node_modules # Mac'teki node_modules ile çakışmaması için önemli
+    depends_on:
+      - nginx_lb # Önce backend ve load balancer kalksın
+
+    # ... diğer servislerin (redis, nestjs, python) bittiği yere ekle:
+
+  nginx_lb:
+    image: nginx:alpine
+    container_name: nginx_lb
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - nestjs_gateway
+
+

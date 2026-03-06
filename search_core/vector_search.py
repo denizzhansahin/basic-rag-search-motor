@@ -1,13 +1,14 @@
 from qdrant_client import QdrantClient
 from langchain_ollama import OllamaEmbeddings
-from search_core.config import COLLECTION_NAME, QDRANT_URL
+from search_core.config import COLLECTION_NAME, EMBEDDING_MODEL, OLLAMA_BASE_URL, QDRANT_URL
 
 
 
 client=QdrantClient(url=QDRANT_URL)
 
 embeddings=OllamaEmbeddings(
-    model="embeddinggemma"
+    model=EMBEDDING_MODEL,
+    base_url=OLLAMA_BASE_URL
 )
 
 

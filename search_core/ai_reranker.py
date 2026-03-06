@@ -1,7 +1,12 @@
+import os
+
 from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, SystemMessage
+from search_core.config import OLLAMA_MODEL, OLLAMA_BASE_URL
 
-llm = ChatOllama(model="gemma3:4b", temperature=0.0)
+
+llm = ChatOllama(model=OLLAMA_MODEL, temperature=0.0, base_url = OLLAMA_BASE_URL)
+
 
 def rerank_with_ai(query, results):
     if not results:

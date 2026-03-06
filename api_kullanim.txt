@@ -9,7 +9,8 @@ https://docs.nestjs.com/
 Paketleri kur:
 npm install @nestjs/websockets @nestjs/platform-socket.io ws
 npm install --save-dev @types/ws
-@nestjs/config
+npm install @socket.io/redis-adapter ioredis
+npm install @nestjs/config
 nest g module search
 nest g gateway search
 

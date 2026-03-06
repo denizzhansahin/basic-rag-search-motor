@@ -31,3 +31,4 @@ def search_pipeline(query, user_history=[]):
     save_search(query)
 
     return results
+

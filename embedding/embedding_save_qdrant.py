@@ -1,4 +1,4 @@
-from embedding.config import COLLECTION_NAME, QDRANT_URL
+from embedding.config import COLLECTION_NAME, DIMENSION, EMBEDDING_MODEL, OLLAMA_BASE_URL, QDRANT_URL
 import qdrant_client
 from langchain_qdrant import QdrantVectorStore
 from langchain_ollama import OllamaEmbeddings
@@ -28,7 +28,7 @@ def qdranta_kaydet(belge_parcalari, collection_name=COLLECTION_NAME):
         client = qdrant_client.QdrantClient(url=QDRANT_URL)
         
         # 2. Embedding modelini tanımla
-        embeddings = OllamaEmbeddings(model="embeddinggemma")
+        embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL, base_url=OLLAMA_BASE_URL)  # embeddinggemma modelini kullanıyoruz
         
         # 3. LangChain ile Qdrant nesnesini oluştur
 
@@ -43,7 +43,7 @@ def qdranta_kaydet(belge_parcalari, collection_name=COLLECTION_NAME):
             client.create_collection(
                 collection_name=collection_name,
                 vectors_config=VectorParams(
-                    size=768,   # embeddinggemma dimension
+                    size=DIMENSION,   # embeddinggemma dimension
                     distance=Distance.COSINE
                 ),
             )

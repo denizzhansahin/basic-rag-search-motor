@@ -1,0 +1,16 @@
+**/node_modules
+**/venv
+**/.env
+**/.git
+**/pg_data
+**/qdrant_data
+
+
+**/node_modules
+**/venv
+**/.git
+**/pg_data
+**/qdrant_data
+*.pyc
+__pycache__
+.env

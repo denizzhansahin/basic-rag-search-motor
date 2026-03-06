@@ -1,12 +1,19 @@
 import json
+import os
 from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, SystemMessage
+from search_core.config import OLLAMA_MODEL, OLLAMA_BASE_URL
+
+
 
 # Sıcaklığı düşük tutuyoruz ki model yaratıcılık yerine formata sadık kalsın
 llm = ChatOllama(
-    model="gemma3:4b",
-    temperature=0.1
+    model=OLLAMA_MODEL,
+    temperature=0.1,
+    base_url = OLLAMA_BASE_URL
 )
+
+
 
 def ai_answer(query, results):
     context_list = []
@@ -24,7 +31,7 @@ def ai_answer(query, results):
     # Prompt'a kesin komutlar ve daha fazla öneri şablonu eklendi
     sys_prompt = """
 Sen gelişmiş bir arama motoru asistanısın. Sana verilen dökümanlara göre kullanıcının sorusunu yanıtla.
-Toplamda 15 öneri verebilirsin, eğer 15'ten azsa sadece mevcut kadar öneri ver.
+Toplamda 5 öneri verebilirsin, eğer 5'ten azsa sadece mevcut kadar öneri ver.
 DİKKAT: YANITINI SADECE AŞAĞIDAKİ JSON FORMATINDA VER! Hiçbir markdown etiketi (```json vb.) kullanma. Doğrudan süslü parantez '{' ile başla!
 {
   "summary": "Buraya kısa ve detaylı özet yanıtını yaz (Markdown formatında kalın yazılar kullanabilirsin).",
@@ -33,17 +40,7 @@ DİKKAT: YANITINI SADECE AŞAĞIDAKİ JSON FORMATINDA VER! Hiçbir markdown etik
     {"title": "Öneri Başlığı 2", "url": "[https://ornek.com/2](https://ornek.com/2)"},
     {"title": "Öneri Başlığı 3", "url": "[https://ornek.com/3](https://ornek.com/3)"},
     {"title": "Öneri Başlığı 4", "url": "[https://ornek.com/4](https://ornek.com/4)"},
-    {"title": "Öneri Başlığı 5", "url": "[https://ornek.com/5](https://ornek.com/5)"},
-    {"title": "Öneri Başlığı 6", "url": "[https://ornek.com/6](https://ornek.com/6)"},
-    {"title": "Öneri Başlığı 7", "url": "[https://ornek.com/7](https://ornek.com/7)"},
-    {"title": "Öneri Başlığı 8", "url": "[https://ornek.com/8](https://ornek.com/8)"},
-    {"title": "Öneri Başlığı 9", "url": "[https://ornek.com/9](https://ornek.com/9)"},
-    {"title": "Öneri Başlığı 10", "url": "[https://ornek.com/10](https://ornek.com/10)"},
-    {"title": "Öneri Başlığı 11", "url": "[https://ornek.com/11](https://ornek.com/11)"},
-    {"title": "Öneri Başlığı 12", "url": "[https://ornek.com/12](https://ornek.com/12)"},
-    {"title": "Öneri Başlığı 13", "url": "[https://ornek.com/13](https://ornek.com/13)"},
-    {"title": "Öneri Başlığı 14", "url": "[https://ornek.com/14](https://ornek.com/14)"},
-    {"title": "Öneri Başlığı 15", "url": "[https://ornek.com/15](https://ornek.com/15)"}
+    {"title": "Öneri Başlığı 5", "url": "[https://ornek.com/5](https://ornek.com/5)"}
   ]
 }
 """

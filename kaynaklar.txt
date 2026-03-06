@@ -75,6 +75,31 @@ docker exec -it rag_redis redis-cli FLUSHALL
 
 
 
+Docker için:
+embedding:
+ollama pull all-minilm
+llm:
+ollama run qwen3.5:0.8b-q8_0
+
+diğer:daha hızlı olsun istersen
+ollama run smollm2:360m
+
+OLLAMA sayısı:
+export OLLAMA_NUM_PARALLEL=5
+ollama serve
+
+# Mac terminalinde Ollama kapalıyken çalıştır
+launchctl setenv OLLAMA_HOST "0.0.0.0"
+
+# Aynı anda kaç isteğin işleneceğini belirler
+export OLLAMA_NUM_PARALLEL=5
+
+# Kaç farklı modelin bellekte hazır tutulacağını belirler
+export OLLAMA_MAX_LOADED_MODELS=5
+
+# Ollama'yı bu değişkenlerle başlatın
+ollama serve
+
 
 BURDAN SONRASINI OKUMA BOŞVER:
 selenium:

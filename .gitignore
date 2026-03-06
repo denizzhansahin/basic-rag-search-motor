@@ -30,9 +30,9 @@
 /python_api/__pycache__/
 /python_api/__pycache__/*
 
-/vite_frontend/node_modules/
-/vite_frontend/dist/
-/vite_frontend/build/
+/vite_frontend_search/node_modules/
+/vite_frontend_search/dist/
+/vite_frontend_search/build/
 
 
 **/node_modules/
