@@ -5,3 +5,4 @@ npm install
 npm install socket.io-client lucide-react
 npm install -D tailwindcss @tailwindcss/postcss autoprefixer
 npm install react-router-dom
+npm install react-markdown remark-gfm

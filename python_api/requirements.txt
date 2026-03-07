@@ -18,3 +18,4 @@ langchain-qdrant
 streamlit
 rq
 psycopg2-binary
+PyPDF2

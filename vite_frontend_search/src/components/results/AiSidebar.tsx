@@ -7,12 +7,11 @@ interface AiSidebarProps {
     chatInput: string;
     setChatInput: (val: string) => void;
     chatMessages: any[];
-    handleFollowUp: () => void;
 }
 
 // Hatanın çözüldüğü tam yazım şekli:
 export const AiSidebar: React.FC<AiSidebarProps> = ({
-    aiData, isLoading, chatInput, setChatInput, chatMessages, handleFollowUp
+    aiData, isLoading, chatInput, setChatInput, chatMessages,
 }) => {
 
 

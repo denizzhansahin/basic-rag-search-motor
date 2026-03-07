@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { io, type Socket } from 'socket.io-client';
-import { ResultsHeader } from './results/ResultsHeader';
-import { AiSidebar } from './results/AiSidebar';
-import { type ClassicResult, type AiData } from './results/ResultTypes';
+import { ResultsHeader } from '../components/results/ResultsHeader';
+import { AiSidebar } from '../components/results/AiSidebar';
+import { type ClassicResult, type AiData } from '../components/results/ResultTypes';
 
 import { useRef } from 'react';
+import { Navbar } from '../components/Navbar';
+import { Footer } from '../components/Footer';
 
 
 
@@ -46,14 +48,26 @@ export default function Results() {
 
     const searchSentRef = useRef(false);
 
+    // DEĞİŞİKLİK BURADA: Boolean yerine son aranan kelimeyi tutuyoruz
+    const lastProcessedQueryRef = useRef<string | null>(null);
+
+
     useEffect(() => {
         if (!queryParam) {
             navigate('/');
             return;
         }
 
+        /*
         if (searchSentRef.current) return;
         searchSentRef.current = true;
+        */
+        // Eğer URL'deki query, halihazırda işlediğimiz query ile aynıysa dur.
+        // Bu hem çift render'ı engeller hem de kelime değişince çalışmasını sağlar.
+        if (lastProcessedQueryRef.current === queryParam) return;
+
+        // Şimdi yeni aramayı kaydedelim
+        lastProcessedQueryRef.current = queryParam;
 
         setQuery(queryParam);
         setAllResults([]);
@@ -68,7 +82,7 @@ export default function Results() {
 
         socket.emit('arama_yap', { query: queryParam });
 
-    }, [queryParam]);
+    }, [queryParam, navigate]);
 
     // Results.tsx içindeki ilk useEffect bloğu yerine bunu koy:
     /*
@@ -142,6 +156,8 @@ export default function Results() {
         if (query.trim()) navigate(`/search?q=${encodeURIComponent(query)}`);
     };
 
+
+
     const totalPages = Math.ceil(allResults.length / resultsPerPage);
     const displayedResults = allResults.slice((currentPage - 1) * resultsPerPage, currentPage * resultsPerPage);
 
@@ -166,13 +182,18 @@ export default function Results() {
 
     return (
         <div className="min-h-screen bg-white text-slate-900 font-display">
-            <ResultsHeader query={query} setQuery={setQuery} onSearch={handleSearch} />
+            <Navbar
+                query={query}
+                setQuery={setQuery}
+                onSearch={handleSearch}
+                showSearch={true}
+            />
 
             {/* MOBİL UYUMLU GRID: 
                - Mobilde tek sütun (grid-cols-1)
                - Masaüstünde iki sütun (lg:grid-cols-[1fr_400px])
             */}
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 lg:gap-12 max-w-[1440px] mx-auto pt-6 lg:pt-8 px-4 md:px-12 pb-20">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 lg:gap-12 max-w-[1440px] mx-auto pt-8 px-6 md:px-12 pb-20 w-full">
 
                 {/* SAĞ: AI SIDEBAR (MOBİLDE ÜSTE ÇIKAR) 
                    CSS 'order-first' mobilde en üste alır, 'lg:order-last' masaüstünde sağa atar!
@@ -184,7 +205,6 @@ export default function Results() {
                         chatInput={chatInput}
                         setChatInput={setChatInput}
                         chatMessages={chatMessages}
-                        handleFollowUp={handleFollowUp}
                     />
                 </div>
 
@@ -223,7 +243,11 @@ export default function Results() {
                     )}
                 </main>
 
+               
+
             </div>
+
+             <Footer />
         </div>
     );
 }

@@ -6,6 +6,7 @@ from pathlib import Path
 from datetime import datetime, date
 from decimal import Decimal
 import uuid
+from python_api.ai_chat_engine import process_ai_chat
 import redis.asyncio as redis
 
 # Kütüphane yollarını ekle
@@ -90,35 +91,71 @@ async def process_search(job_id, query):
         print(f"❌ Hata: {e}")
         await redis_client.publish(f"job:{job_id}", json.dumps({"type": "ERROR", "message": str(e)}))
 
-async def process_follow_up(job_id, question, history):
-    print(f"💬 [FOLLOW-UP] Takip sorusu: {question}")
-    try:
-        formatted_history = format_history(history)
-        # RAG sistemine sor
-        cevap = await asyncio.to_thread(soru_sor, question, formatted_history)
-        
-        await redis_client.publish(f"job:{job_id}", json.dumps({
-            "type": "AI_ANSWER", 
-            "data": cevap
-        }))
-        await redis_client.publish(f"job:{job_id}", json.dumps({"type": "DONE"}))
-    except Exception as e:
-        await redis_client.publish(f"job:{job_id}", json.dumps({"type": "ERROR", "message": str(e)}))
+
+
+
+
+
+# 1. ÇALIŞAN GÖREVLERİ TUTACAĞIMIZ SÖZLÜK
+running_tasks = {} # format: { "jobId": asyncio.Task_objesi }
+
+
+
+# 2. İPTAL SİNYALLERİNİ DİNLEYEN ARKA PLAN GÖREVİ
+async def cancel_listener():
+    pubsub = redis_client.pubsub()
+    await pubsub.subscribe('cancel_jobs')
+    print("🛑 İptal dinleyicisi aktif...")
+    
+    async for message in pubsub.listen():
+        try:
+            if message['type'] == 'message':
+                raw_data = message['data']
+                
+                # Redis'ten gelen veri bytes ise decode et, zaten string ise doğrudan al
+                if isinstance(raw_data, bytes):
+                    job_id_to_cancel = raw_data.decode('utf-8')
+                else:
+                    job_id_to_cancel = str(raw_data)
+                
+                task = running_tasks.get(job_id_to_cancel)
+                if task:
+                    print(f"🔪 Görev zorla iptal ediliyor: {job_id_to_cancel}")
+                    task.cancel() # Asenkron görevi anında öldürür!
+        except Exception as e:
+            print(f"⚠️ İptal dinleyicisinde (cancel_listener) küçük bir hata oluştu ama dinlemeye devam ediyor: {e}")
+
 
 async def main_loop():
     print("🚀 Space Teknopoli AI Worker Başladı! (Asenkron Mod)")
+
+# İptal dinleyicisini ana döngü başlamadan önce çalıştır
+    asyncio.create_task(cancel_listener())
+
     while True:
-        res = await redis_client.brpop('task_queue', timeout=0)
-        if res:
-            _, message = res
-            job = json.loads(message)
-            
-            if job['type'] == 'search':
-                # DEĞİŞEN KISIM BURASI: await yerine create_task kullanıyoruz!
-                asyncio.create_task(process_search(job['jobId'], job['query']))
-            elif job['type'] == 'follow_up':
-                # TAKİP SORUSU İÇİN DE AYNISI
-                asyncio.create_task(process_follow_up(job['jobId'], job['question'], job.get('history', [])))
+            res = await redis_client.brpop('task_queue', timeout=0)
+            if res:
+                _, message = res
+                job = json.loads(message)
+                job_id = job['jobId']
+                
+                # 3. GÖREVİ BAŞLAT VE SÖZLÜĞE EKLE
+                if job['type'] == 'search':
+                    task = asyncio.create_task(process_search(job_id, job['query']))
+                    running_tasks[job_id] = task
+                    # Görev bitince sözlükten kendi kendini silsin
+                    task.add_done_callback(lambda t, jid=job_id: running_tasks.pop(jid, None))
+                    
+                elif job['type'] == 'ai_chat':
+                    task = asyncio.create_task(process_ai_chat(
+                        job_id, redis_client, job['query'], job.get('history', []), job.get('fileBase64'), job.get('fileType')
+                    ))
+                    running_tasks[job_id] = task
+                    task.add_done_callback(lambda t, jid=job_id: running_tasks.pop(jid, None))
+                    
+
+
+
 
 if __name__ == "__main__":
     # Tabloları oluştur (Opsiyonel: Zaten varsa bir şey yapmaz)

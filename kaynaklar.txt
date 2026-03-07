@@ -28,6 +28,7 @@ pip install -U langchain-qdrant
 pip install -U langchain langchain-community langchain-core langchain-ollama langchain-qdrant
 pip install streamlit
 pip install rq
+pip install PyPDF2
 
 
 
@@ -99,6 +100,16 @@ export OLLAMA_MAX_LOADED_MODELS=5
 
 # Ollama'yı bu değişkenlerle başlatın
 ollama serve
+
+Terminalden Zorla Kapat:
+
+Bash
+pkill ollama
+
+# Değişkenleri sistem hafızasından siliyoruz
+launchctl unsetenv OLLAMA_HOST
+launchctl unsetenv OLLAMA_NUM_PARALLEL
+launchctl unsetenv OLLAMA_MAX_LOADED_MODELS
 
 
 BURDAN SONRASINI OKUMA BOŞVER:
