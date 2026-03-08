@@ -22,7 +22,7 @@ from search_core.config import OLLAMA_MODEL, OLLAMA_BASE_URL
 
 
 
-def query_understanding(query):
+async def query_understanding_async(query):
     sys_prompt = """
 Sen bir Query Understanding (Sorgu Anlama) modelisin.
 Kullanıcının sorgusunu al ve arama motoruna en uygun hale getir.

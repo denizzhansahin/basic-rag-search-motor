@@ -84,7 +84,7 @@ export const AiSidebar: React.FC<AiSidebarProps> = ({
                         <h3 className="text-xs font-bold mb-4 text-slate-400 uppercase tracking-widest">İlgili Aramalar</h3>
                         <div className="flex flex-col gap-3">
                             {aiData.suggestions.map((sug, i) => (
-                                <a key={i} href={sug.url} className="text-xs text-slate-300 hover:text-blue-400 flex items-center gap-2 transition-colors">
+                                <a target="_blank" rel="noreferrer" key={i} href={sug.url} className="text-xs text-slate-300 hover:text-blue-400 flex items-center gap-2 transition-colors">
                                     <span className="material-symbols-outlined text-[14px]">link</span> {sug.title}
                                 </a>
                             ))}
