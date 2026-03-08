@@ -103,6 +103,12 @@ ollama pull all-minilm
 llm:
 ollama run qwen3.5:0.8b-q8_0
 
+reranking:
+ollama pull qllama/bge-reranker-v2-m3:q4_k_m
+
+
+
+
 diğer:daha hızlı olsun istersen
 ollama run smollm2:360m
 

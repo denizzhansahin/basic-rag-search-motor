@@ -153,4 +153,4 @@ def hybrid_search(query):
         results,
         key=lambda x:x["score"],
         reverse=True
-    )[:30]
+    )[:100]

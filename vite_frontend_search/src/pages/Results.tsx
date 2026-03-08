@@ -40,6 +40,7 @@ export default function Results() {
     const [query, setQuery] = useState(queryParam);
     const [allResults, setAllResults] = useState<ClassicResult[]>([]);
     const [aiData, setAiData] = useState<AiData | null>(null);
+    const [topData, setTopData] = useState<ClassicResult[]>([]);
     const [isAiLoading, setIsAiLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const resultsPerPage = 15;
@@ -74,7 +75,7 @@ export default function Results() {
         setAiData(null);
         setIsAiLoading(true);
         setCurrentPage(1);
-        setChatMessages([]);
+
 
         if (!socket.connected) socket.connect();
 
@@ -129,25 +130,26 @@ export default function Results() {
         const handleArama = (data: any) => {
             if (data.type === 'FULL_RESULTS') {
                 setAllResults(data.data);
-            } else if (data.type === 'AI_RESULTS') {
+            }
+            else if (data.type === 'AI_RESULTS_TOP') {
+                setTopData(data.top_results || []);
+            }
+            else if (data.type === 'AI_RESULTS') {
                 setAiData(data);
                 setIsAiLoading(false); // Veri gelince loading biter
             }
         };
 
-        const handleTakip = (data: { answer: string }) => {
-            setChatMessages(prev => [...prev, { role: 'ai', content: data.answer }]);
-        };
+      
 
         socket.on('arama_sonucu', handleArama);
         socket.on('arama_sonucu', (data) => {
             console.log("Gelen veri:", data);
         });
-        socket.on('takip_cevabi', handleTakip);
+        
 
         return () => {
             socket.off('arama_sonucu', handleArama);
-            socket.off('takip_cevabi', handleTakip);
         };
     }, []); // Bileşen ilk yüklendiğinde bir kez dinleyicileri kurar
 
@@ -163,22 +165,7 @@ export default function Results() {
 
 
 
-    // Results.tsx içinde state'leri ve fonksiyonu tanımla:
-    const [chatInput, setChatInput] = useState('');
-    const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'ai', content: string }[]>([]);
 
-    const handleFollowUp = () => {
-        if (!chatInput.trim()) return;
-        const newUserMsg = { role: 'user' as const, content: chatInput };
-        setChatMessages(prev => [...prev, newUserMsg]);
-
-        socket.emit('takip_sorusu_sor', {
-            question: chatInput,
-            history: chatMessages,
-            context: allResults.slice(0, 5) // Bağlam olarak ilk 5 sonucu gönder
-        });
-        setChatInput('');
-    };
 
     return (
         <div className="min-h-screen bg-white text-slate-900 font-display">
@@ -201,10 +188,8 @@ export default function Results() {
                 <div className="order-first lg:order-last w-full">
                     <AiSidebar
                         aiData={aiData}
+                        topData={topData}
                         isLoading={isAiLoading}
-                        chatInput={chatInput}
-                        setChatInput={setChatInput}
-                        chatMessages={chatMessages}
                     />
                 </div>
 
@@ -243,11 +228,11 @@ export default function Results() {
                     )}
                 </main>
 
-               
+
 
             </div>
 
-             <Footer />
+            <Footer />
         </div>
     );
 }

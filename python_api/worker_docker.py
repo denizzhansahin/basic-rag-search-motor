@@ -72,6 +72,12 @@ async def process_search(job_id, query):
         top_20 = all_results[:20]
         ai_ranked_results = await asyncio.to_thread(rerank_with_ai, query, top_20)
 
+        # 4. AI_RESULTS_TOP: rerank edilmiş top sonuçları gönder
+        await redis_client.publish(f"job:{job_id}", json.dumps({
+            "type": "AI_RESULTS_TOP",
+            "top_results": serialize_results(ai_ranked_results[:5])
+        }, default=json_serial))
+
         # 3. AI Özetleme ve Tavsiyeler
         print(f"✍️ [AI] Özet ve tavsiyeler üretiliyor...")
         ai_response = await asyncio.to_thread(ai_answer, query, ai_ranked_results)
@@ -80,8 +86,8 @@ async def process_search(job_id, query):
         await redis_client.publish(f"job:{job_id}", json.dumps({
             "type": "AI_RESULTS",
             "summary": ai_response.get("summary", ""),
-            "suggestions": ai_response.get("suggestions", []),
-            "top_results": serialize_results(ai_ranked_results[:8])
+            "suggestions": ai_response.get("suggestions", [])
+            #"top_results": serialize_results(ai_ranked_results[:8])
         }, default=json_serial))
 
         await redis_client.publish(f"job:{job_id}", json.dumps({"type": "DONE"}))

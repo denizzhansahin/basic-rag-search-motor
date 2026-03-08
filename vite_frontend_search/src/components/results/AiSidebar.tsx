@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
-import type { AiData } from './ResultTypes';
+import type { AiData, ClassicResult } from './ResultTypes';
 
 interface AiSidebarProps {
     aiData: AiData | null;
+    topData: ClassicResult[];
     isLoading: boolean;
-    chatInput: string;
-    setChatInput: (val: string) => void;
-    chatMessages: any[];
 }
 
 // Hatanın çözüldüğü tam yazım şekli:
 export const AiSidebar: React.FC<AiSidebarProps> = ({
-    aiData, isLoading, chatInput, setChatInput, chatMessages,
+    aiData, topData, isLoading,
 }) => {
 
 
@@ -38,7 +36,7 @@ export const AiSidebar: React.FC<AiSidebarProps> = ({
                             AI Özeti
                         </h3>
                     </div>
-                    
+
                     {isLoading ? (
                         // Yükleniyor iskeleti (Skeleton)
                         <div className="animate-pulse flex flex-col gap-3">
@@ -54,25 +52,16 @@ export const AiSidebar: React.FC<AiSidebarProps> = ({
                     )}
                 </div>
 
-                {/* 2. ÖNE ÇIKANLAR (RERANK SONUÇLARI) */}
+                {/* 2️⃣ AI SEÇİMLERİ (TOP RERANK) */}
                 <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
                     <h3 className="text-sm font-bold mb-4 flex items-center gap-2 text-slate-800">
                         <span className="material-symbols-outlined text-emerald-500 text-[18px]">verified</span>
                         AI SEÇİMLERİ
                     </h3>
                     
-                    {isLoading ? (
-                        // Rerank Bekleniyor İskeleti
-                        <div className="flex flex-col gap-4 animate-pulse">
-                            {[1].map((i) => (
-                                <div key={i} className="border-b border-slate-50 pb-3 last:border-0">
-                                    <div className="h-3 bg-slate-100 rounded w-3/4 mb-2"></div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : aiData?.top_results && aiData.top_results.length > 0 ? (
+                    {topData && topData.length > 0 ? (
                         <div className="flex flex-col gap-4">
-                            {aiData.top_results.map((res, i) => (
+                            {topData.map((res, i) => (
                                 <div key={i} className="group border-b border-slate-50 pb-3 last:border-0">
                                     <a href={res.url} target="_blank" rel="noreferrer" className="text-sm font-semibold text-slate-800 hover:text-blue-700 block mb-1">
                                         {res.title}
@@ -87,6 +76,7 @@ export const AiSidebar: React.FC<AiSidebarProps> = ({
                         <p className="text-xs text-slate-400">Öne çıkan sonuç bulunamadı.</p>
                     )}
                 </div>
+
 
                 {/* 3. ÖNERİLER */}
                 {(!isLoading && aiData?.suggestions && aiData.suggestions.length > 0) && (

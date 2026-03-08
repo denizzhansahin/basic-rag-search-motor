@@ -12,7 +12,7 @@ export interface AiSuggestion {
 
 export interface AiData {
   summary: string;
-  top_results?: ClassicResult[];
+  //top_results?: ClassicResult[];
   suggestions?: AiSuggestion[];
 }
 

@@ -17,6 +17,7 @@ EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL")
 DIMENSION = int(os.getenv("DIMENSION"))  # embeddinggem
 
+CROSS_ENCODER_MODEL = os.getenv("CROSS_ENCODER_MODEL")
 
 """
 DB_AYARLARI = {
