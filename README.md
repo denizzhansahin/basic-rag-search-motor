@@ -1,0 +1,1 @@
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/denizzhansahin/basic-rag-search-motor)
