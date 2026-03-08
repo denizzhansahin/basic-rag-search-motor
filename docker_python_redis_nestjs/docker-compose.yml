@@ -3,6 +3,7 @@ services:
   redis_broker:
     image: redis:7-alpine
     container_name: redis_broker
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
 
@@ -85,3 +86,31 @@ services:
       - nestjs_gateway
 
 
+  web_crawler:
+      build:
+        context: ../
+        dockerfile: ./web_crawler/Dockerfile
+      container_name: space_web_crawler
+      command: ["bash", "/app/web_crawler/start_crawler.sh"]
+      env_file: 
+        - ../web_crawler/.env.docker
+      environment:
+        - REDIS_URL=redis://redis_broker:6379
+        - REDIS_PORT=6379
+        - CPU_MODE=high
+        - PYTHONPATH=/app:/app/
+        - REDIS_HOST=redis_broker
+      volumes:
+        # Geliştirme yaparken kodların anında yansıması için:
+        - ../web_crawler:/app/web_crawler
+        # Ortak veritabanı işlemleri klasörüne erişim için (eğer varsa):
+        - ../postgresql_islem:/app/postgresql_islem
+      # Chrome'un bellek hatalarını (out of memory) önlemek için:
+      shm_size: '4gb' 
+      depends_on:
+        - redis_broker
+      restart: unless-stopped
+      ports:
+      # "8501:8501" dersen tüm dünyaya (0.0.0.0) açılır.
+      # "127.0.0.1:8501:8501" dersen sadece SENİN bilgisayarından (localhost) erişilebilir.
+      - "127.0.0.1:8501:8501"

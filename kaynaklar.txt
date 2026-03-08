@@ -29,7 +29,7 @@ pip install -U langchain langchain-community langchain-core langchain-ollama lan
 pip install streamlit
 pip install rq
 pip install PyPDF2
-
+pip install langdetect trafilatura
 
 
 
@@ -71,6 +71,27 @@ Verileri Manuel Yönetmek İçin İpuçları
 Eğer Redis çalışırken içindeki her şeyi tek komutla silmek istersen (konteyneri kapatmadan), terminalden şu komutu vermen yeterli:
 docker exec -it rag_redis redis-cli FLUSHALL
 
+
+Sistemi Ayağa Kaldır:
+
+Bash
+docker-compose up -d --build web_crawler
+Bu komutla site_manager.py ve seçtiğin worker arka planda çalışmaya başlar.
+
+Admin Paneli El İle Açmak:
+İstediğin zaman terminalden şu komutu vererek konteyner içinde Streamlit'i çalıştırabilirsin:
+
+Bash
+docker exec -it space_web_crawler streamlit run admin_panel.py
+docker exec -it space_web_crawler streamlit run admin_panel.py --server.address 0.0.0.0
+cd web_crawler
+streamlit run admin_panel.py --server.address 0.0.0.0 --server.port 8501
+
+Kapatmak İstediğinde:
+İşin bittiğinde Docker Desktop üzerinden veya şu komutla sadece tarayıcıyı durdurabilirsin:
+
+Bash
+docker-compose stop web_crawler
 
 
 

@@ -16,5 +16,5 @@ DB_URL = f"postgresql+psycopg2://{DB_USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
 
 # Kontrol için (Şifreyi gizleyerek yazdırmak güvenlidir)
 print(f"Bağlantı adresi hazır: postgresql+psycopg2://{DB_USER}:***@{HOST}:{PORT}/{DATABASE}")
-REDIS_HOST = os.getenv("REDIS_HOST")
-REDIS_PORT = os.getenv("REDIS_PORT")
+REDIS_HOST = os.getenv("REDIS_HOST", "redis_broker") 
+REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))

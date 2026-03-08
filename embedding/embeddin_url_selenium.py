@@ -1,91 +1,133 @@
 import sys
 from pathlib import Path
 
-# Şu anki dosyanın bulunduğu klasörü bul ve bir üst klasöre git
-base_path = Path(__file__).resolve().parent.parent 
+from embedding.html_language_detect import dili_bul
+
+base_path = Path(__file__).resolve().parent.parent
 sys.path.append(str(base_path))
-
-
-
-
-from langchain_community.document_loaders import SeleniumURLLoader
-from langchain_ollama import OllamaEmbeddings
 
 import os
 import json
+import time
 from datetime import datetime
 
-from postgresql_islem.postgres_islem import veritabanina_kaydet # Yazdığımız fonksiyonu içeri alıyoruz
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+
+from langchain_core.documents import Document
+import trafilatura
+
+from postgresql_islem.postgres_islem import veritabanina_kaydet
+
 
 def embedding_url(url_yolu):
-    # 1. Klasör Oluşturma (Eğer yoksa 'web_veri' klasörünü oluşturur)
+
     klasor_adi = "web_veri"
+
     if not os.path.exists(klasor_adi):
         os.makedirs(klasor_adi)
-        print(f"'{klasor_adi}' klasörü oluşturuldu.")
 
+    print("🌐 Selenium sayfayı açıyor...")
 
-    # 1. Adım: Selenium ile Web Sayfasını Yükleme
-    urls = [
-        url_yolu,
-        # Buraya dinamik/JavaScript ile yüklenen başka linkler de ekleyebilirsin
-    ]
+    # Selenium ayarları
+    options = Options()
+    options.binary_location = "/usr/bin/chromium"
 
-    print("Selenium tarayıcıyı arka planda açıyor ve sayfaları okuyor...")
-    loader = SeleniumURLLoader(urls=urls)
-    #docs = loader.load() # Tarayıcı açılır, sayfa yüklenir ve metinler alınır
-    # --- ASIL DEĞİŞİKLİK BURADA ---
-    loader = SeleniumURLLoader(
-        urls=urls,
-        arguments=[
-            "--headless",                  # Tarayıcı penceresini açma (Hız için şart)
-            "--disable-gpu",               # Gereksiz GPU kullanımını kapat
-            "--no-sandbox",                # Güvenlik katmanını optimize et
-            "--blink-settings=imagesEnabled=false", # RESİMLERİ KAPATAN SİHİRLİ KOMUT
-            "--disable-extensions",        # Eklentileri yükleme
-            "--mute-audio"                 # Sesi kapat
-        ]
-    )
-    # ------------------------------
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--blink-settings=imagesEnabled=false")
 
-    docs = loader.load()
+    service = Service("/usr/bin/chromedriver")
 
+    driver = webdriver.Chrome(service=service, options=options)
 
-    # 3. Veriyi Dosya Olarak Kaydetme
-    # Dosya adını benzersiz yapmak için o anki zamanı ve URL'nin bir kısmını kullanıyoruz
-    zaman_damgasi = datetime.now().strftime("%Y%m%d_%H%M%S")
-    # URL'deki geçersiz karakterleri temizleyerek güvenli bir dosya adı oluşturuyoruz
-    temiz_url = url_yolu.replace("https://", "").replace("http://", "").replace("/", "_")[:30]
-    dosya_adi = f"{klasor_adi}/web_{temiz_url}_{zaman_damgasi}.json"
+    # sayfayı aç
+    driver.get(url_yolu)
 
-    # 1. Tam şu anki zamanı alıyoruz
+    time.sleep(3)
+
+    html = driver.page_source
+
+    driver.quit()
+
+    print("📄 HTML alındı. Uzunluk:", len(html))
+
+    # içerik extraction
+    text = trafilatura.extract(html)
+
+    if not text:
+        print("⚠️ İçerik çıkarılamadı:", url_yolu)
+        return []
+
+    print("📰 Çıkarılan metin uzunluğu:", len(text))
+
     suanki_zaman = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # 2. ÖNEMLİ: Her bir dokümanın kendi metadata sözlüğüne bu bilgiyi kalıcı olarak ekliyoruz
+
+
+
+    meta = trafilatura.extract_metadata(html)
+
+    suanki_zaman = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    language = dili_bul(html, text)
+
+    metadata = {
+        "source": meta.url if meta and meta.url else url_yolu,
+        "title": meta.title if meta else None,
+        "description": meta.description if meta else None,
+        "language": language,
+        "scraped_at": suanki_zaman,
+        "source_url": url_yolu
+    }
+
+    docs = [
+    Document(
+        page_content=text,
+        metadata=metadata
+    )
+]
+
+    """
+    docs = [
+        Document(
+            page_content=text,
+            metadata={
+                "source_url": url_yolu,
+                "scraped_at": suanki_zaman
+            }
+        )
+    ]
+    """
+
+    # postgres kayıt
     for doc in docs:
-        doc.metadata["scraped_at"] = suanki_zaman
-        doc.metadata["source_url"] = url_yolu # Takip için URL'yi de içine gömüyoruz
+        veritabanina_kaydet(
+            metadata=doc.metadata,
+            icerik=doc.page_content
+        )
 
-        # Postgres kayıt fonksiyonunu tetikle!
-        # doc.page_content içindeki metni ve az önce güncellediğimiz metadata'yı gönderiyoruz
-        veritabanina_kaydet(metadata=doc.metadata, icerik=doc.page_content)
+    # JSON kayıt
+    zaman_damgasi = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    # 3. JSON için veriyi hazırlıyoruz (Artık metadata içinde olduğu için garanti orada)
+    temiz_url = url_yolu.replace("https://", "").replace("http://", "").replace("/", "_")[:30]
+
+    dosya_adi = f"{klasor_adi}/web_{temiz_url}_{zaman_damgasi}.json"
+
     kaydedilecek_veri = [
         {
-            "page_content": doc.page_content, 
-            "metadata": doc.metadata # 'scraped_at' artık bunun içinde!
-        } 
+            "page_content": doc.page_content,
+            "metadata": doc.metadata
+        }
         for doc in docs
     ]
 
     with open(dosya_adi, "w", encoding="utf-8") as f:
         json.dump(kaydedilecek_veri, f, ensure_ascii=False, indent=4)
 
-    print(f"✅ İşlem tamam! Veriler '{dosya_adi}' dosyasına kaydedildi.")
+    print(f"✅ Kaydedildi -> {dosya_adi}")
 
-
-    # 2. Adım: Web sayfasından çekilen metni vektörlere çevir
     return docs
-
-    print(f"İşlem tamam! Web sayfasından {len(metin_listesi)} adet metin parçası Qdrant'a kaydedildi.")

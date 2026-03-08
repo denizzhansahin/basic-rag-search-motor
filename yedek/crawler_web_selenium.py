@@ -13,9 +13,6 @@ from postgresql_islem.postgres_islem import veritabanina_kaydet
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-
-
 from urllib.parse import urlparse, urljoin
 from datetime import datetime
 import time
@@ -42,9 +39,6 @@ def otomatik_site_tarayici(baslangic_url, max_sayfa=5):
 
 
     chrome_options = Options()
-
-    # 🎯 YOLLARI VE BINARY'YI KESİNLEŞTİR
-    chrome_options.binary_location = "/usr/bin/chromium"
     
     # --- 1. Çekirdek Hız Ayarları (Arguments) ---
     arguments = [
@@ -61,8 +55,7 @@ def otomatik_site_tarayici(baslangic_url, max_sayfa=5):
         "--disk-cache-size=1",         # Önbelleği minimumda tut
         "--media-cache-size=1",        # Medya önbelleğini kapat
         "--disable-notifications",     # Bildirim pencerelerini engelle
-        "--disable-infobars",           # "Chrome otomatik yazılım tarafından kontrol ediliyor" barını gizle
-        "--remote-debugging-port=9222"
+        "--disable-infobars"           # "Chrome otomatik yazılım tarafından kontrol ediliyor" barını gizle
     ]
     
     for arg in arguments:
@@ -81,38 +74,13 @@ def otomatik_site_tarayici(baslangic_url, max_sayfa=5):
         "profile.default_content_setting_values.media_stream": 2   # Mikrofon/Kamera erişimini kapat
     }
     chrome_options.add_experimental_option("prefs", prefs)
-
-
-    # 3. OTOMASYON İZLERİNİ SİL (Bot engelleme için)
-    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    chrome_options.add_experimental_option('useAutomationExtension', False)
     
     # Güvenlik duvarlarını aşmak için kendimizi normal bir Windows/Chrome kullanıcısı gibi gösteriyoruz
     sahte_kimlik = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     chrome_options.add_argument(f"user-agent={sahte_kimlik}")
     
-
-
-    # Sürücü yolunu açıkça belirtiyoruz
-    service = Service(executable_path="/usr/bin/chromedriver")
     # Tarayıcıyı başlat
-    #driver = webdriver.Chrome(options=chrome_options)
-
-    try:
-        print("🚀 Sürücü başlatılıyor (Path: /usr/bin/chromedriver)...")
-        # webdriver.Chrome() çağrısında service ve options'ı net veriyoruz
-        driver = webdriver.Chrome(service=service, options=chrome_options)
-        
-        # Sayfa yükleme süresini işlemci gücüyle 60 saniyeye çekebiliriz
-        driver.set_page_load_timeout(60) 
-        print("✅ Sürücü başarıyla yüklendi.")
-    except Exception as e:
-        print(f"❌ Driver başlatma hatası: {e}")
-        # Hata devam ederse sistem PATH'ini kontrol etmek için:
-        # import os; print(f"DEBUG PATH: {os.environ['PATH']}")
-        return []
-
-
+    driver = webdriver.Chrome(options=chrome_options)
     
     # --- 2. CRAWLING (KEŞİF) MANTIĞI ---
     ziyaret_edilecekler = [baslangic_url]

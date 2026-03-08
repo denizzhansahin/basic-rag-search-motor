@@ -31,3 +31,10 @@ docker-compose up --scale nestjs_gateway=3 --scale python_worker=5 -d
     restart: "always"
 
 
+
+
+
+Eğer Streamlit hala Redis'e bağlanamıyorsa, Docker ağında (network) bir problem olabilir. Tüm konteynerlerin aynı ağda olduğunu teyit etmek için docker-compose.yml dosyanın en altına şunu ekleyebilirsin:
+networks:
+  default:
+    name: space_network

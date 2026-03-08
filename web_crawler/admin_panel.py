@@ -13,7 +13,7 @@ from pathlib import Path
 base_path = Path(__file__).resolve().parent.parent 
 sys.path.append(str(base_path))
 
-from web_crawler.config import DB_URL
+from web_crawler.config import DB_URL, REDIS_HOST
 
 
 import streamlit as st
@@ -93,7 +93,7 @@ if stats:
     
     # Redis Bilgileri
     try:
-        r_conn = Redis(host='localhost', port=6379, decode_responses=True)
+        r_conn = Redis(host=REDIS_HOST, port=6379, decode_responses=True)
 
         queue_size = r_conn.llen("link_kuyrugu")
 
