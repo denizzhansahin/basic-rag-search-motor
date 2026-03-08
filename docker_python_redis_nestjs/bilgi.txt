@@ -4,8 +4,21 @@ docker-compose up --scale python_worker=3
 docker-compose down
 docker-compose up --build
 
-docker-compose up --scale nestjs_gateway=3 --scale python_worker=5 -d
+docker-compose up --scale nestjs_gateway=2 --scale python_worker=3 -d
 
+
+2. Adım: "Hayalet" Ağları Temizle
+Docker'ın belleğinde kalan ve kullanılmayan ağları şu komutla zorla temizleyebilirsin:
+
+Bash
+docker network prune -f
+
+
+3. Adım: Sistemi Yeniden Başlat
+Eğer sorun hala devam ederse, Docker Desktop'ı (üst menüdeki balina simgesinden) tamamen kapatıp yeniden açmak veya şu komutla her şeyi (imajlar hariç) sıfırlamak işe yarayabilir:
+
+Bash
+docker system prune
 
   qdrant:
     image: qdrant/qdrant:latest

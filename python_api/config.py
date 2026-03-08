@@ -1,8 +1,14 @@
 import os
 from dotenv import load_dotenv
 
-# .env dosyasındaki değişkenleri yükle
-load_dotenv()
+
+# Docker içindeysek, compose'dan gelen değişkenler zaten sistemdedir.
+if not os.getenv("IS_DOCKER"):
+    load_dotenv()
+    print("🏠 Yerel .env yüklendi.")
+else:
+    print("🐳 Docker ortamı algılandı, ayarlar korunuyor.")
+
 
 ACCEPT_URL = os.getenv("ACCEPT_URL").split(",")
 SECRET_KEY = os.getenv("SECRET_KEY")

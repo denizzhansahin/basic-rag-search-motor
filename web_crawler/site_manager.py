@@ -1,12 +1,13 @@
 import sys
 from pathlib import Path
 
+from web_crawler.config import DB_AYARLARI
+
 # Şu anki dosyanın bulunduğu klasörü bul ve bir üst klasöre git
 base_path = Path(__file__).resolve().parent.parent 
 sys.path.append(str(base_path))
 
 from crawler_web_selenium import otomatik_site_tarayici
-from search_core.config import DB_AYARLARI
 
 
 
@@ -20,6 +21,8 @@ import time
 
 def siradaki_siteyi_tara():
     baglanti = None
+    print("Site bağlantı")
+    print(DB_AYARLARI)
     try:
         baglanti = psycopg2.connect(**DB_AYARLARI)
         cursor = baglanti.cursor()

@@ -5,7 +5,7 @@ from pathlib import Path
 base_path = Path(__file__).resolve().parent.parent 
 sys.path.append(str(base_path))
 
-from web_crawler.config import REDIS_HOST, REDIS_PORT
+from web_crawler.config import COLLECTION_NAME, REDIS_HOST, REDIS_PORT
 
 
 
@@ -54,7 +54,7 @@ def isci_baslat(worker_no):
                     
                     # Embedding ve Qdrant İşlemleri
                     parcalar = embedding_url(url)
-                    qdranta_kaydet(parcalar, collection_name="ollama_my_rag_collection")
+                    qdranta_kaydet(parcalar, collection_name=COLLECTION_NAME)
 
                     # Başarı sayacını artır
                     r.incr("basarili_is")

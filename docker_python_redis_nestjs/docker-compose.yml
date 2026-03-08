@@ -8,28 +8,28 @@ services:
       test: ["CMD", "redis-cli", "ping"]
 
   # 2. QDRANT (Vektör Veritabanı)
-  # qdrant:
-  #   image: qdrant/qdrant:latest
-  #   container_name: my_qdrant_db_arama_motoru_yeni
-  #   ports:
-  #     - "6333:6333"
-  #   volumes:
-  #     - ./qdrant_data:/qdrant/storage
-  #   restart: "always" # Sistemle beraber kalkması daha iyidir
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: my_qdrant_db_arama_motoru_yeni
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./qdrant_data:/qdrant/storage
+    restart: "always" # Sistemle beraber kalkması daha iyidir
 
-  # # 3. POSTGRESQL (Klasik Veritabanı)
-  # postgres_db:
-  #   image: postgres:15
-  #   container_name: rag_postgres_yeni
-  #   environment:
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: gizlisifrem
-  #     POSTGRES_DB: arama_motoru_db
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - ./pg_data:/var/lib/postgresql/data
-  #   restart: "always"
+  # 3. POSTGRESQL (Klasik Veritabanı)
+  postgres_db:
+    image: postgres:15
+    container_name: rag_postgres_yeni
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: gizlisifrem
+      POSTGRES_DB: arama_motoru_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    restart: "always"
 
   # 4. NESTJS GATEWAY
   nestjs_gateway:
@@ -38,9 +38,9 @@ services:
     env_file: ../nest_api/.env.docker
     ports: ["3000:3000"]
     command: npm run start:dev
-    #depends_on:
-      #redis_broker: { condition: service_healthy }
-      #postgres_db: { condition: service_started }
+    depends_on:
+      redis_broker: { condition: service_healthy }
+      postgres_db: { condition: service_started }
 
   # 5. PYTHON AI WORKER
   python_worker:
@@ -52,10 +52,11 @@ services:
     environment:
       - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
+      - IS_DOCKER=true
     command: python /app/python_api/worker_docker.py
-    #depends_on:
-      #redis_broker: { condition: service_healthy }
-      #qdrant: { condition: service_started }
+    depends_on:
+      redis_broker: { condition: service_healthy }
+      qdrant: { condition: service_started }
 
     # ... (Diğer servislerin altında)
   
@@ -100,6 +101,8 @@ services:
         - CPU_MODE=high
         - PYTHONPATH=/app:/app/
         - REDIS_HOST=redis_broker
+        - IS_DOCKER=true
+        - DB_HOST=rag_postgres_yeni
       volumes:
         # Geliştirme yaparken kodların anında yansıması için:
         - ../web_crawler:/app/web_crawler
@@ -108,9 +111,11 @@ services:
       # Chrome'un bellek hatalarını (out of memory) önlemek için:
       shm_size: '4gb' 
       depends_on:
-        - redis_broker
+        redis_broker: { condition: service_healthy }
+        postgres_db: { condition: service_started }
       restart: unless-stopped
       ports:
       # "8501:8501" dersen tüm dünyaya (0.0.0.0) açılır.
       # "127.0.0.1:8501:8501" dersen sadece SENİN bilgisayarından (localhost) erişilebilir.
       - "127.0.0.1:8501:8501"
+      

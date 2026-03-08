@@ -1,5 +1,16 @@
 import os
+from dotenv import load_dotenv
+# Sadece lokaldeysen (Docker dışı) .env dosyasını yükle
 
+# Docker içindeysek, compose'dan gelen değişkenler zaten sistemdedir.
+if not os.getenv("IS_DOCKER"):
+    load_dotenv()
+    print("🏠 Yerel .env yüklendi.")
+else:
+    print("🐳 Docker ortamı algılandı, ayarlar korunuyor.")
+
+
+    
 # Sabit localhost yerine .env/docker-compose'dan gelen veriyi alıyoruz
 DB_AYARLARI = {
     "host": os.getenv("DATABASE_HOST", "host.docker.internal"),

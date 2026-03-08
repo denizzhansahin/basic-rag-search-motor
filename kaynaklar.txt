@@ -113,7 +113,9 @@ diğer:daha hızlı olsun istersen
 ollama run smollm2:360m
 
 OLLAMA sayısı:
-export OLLAMA_NUM_PARALLEL=5
+export OLLAMA_NUM_PARALLEL=2
+launchctl setenv OLLAMA_HOST "0.0.0.0"
+export OLLAMA_MAX_LOADED_MODELS=3
 ollama serve
 
 # Mac terminalinde Ollama kapalıyken çalıştır
