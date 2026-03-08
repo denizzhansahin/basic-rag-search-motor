@@ -15,7 +15,7 @@ services:
       - "6333:6333"
     volumes:
       - ./qdrant_data:/qdrant/storage
-    restart: "always" # Sistemle beraber kalkması daha iyidir
+    restart: "no" # Sistemle beraber kalkması daha iyidir
 
   # 3. POSTGRESQL (Klasik Veritabanı)
   postgres_db:
@@ -29,7 +29,7 @@ services:
       - "5432:5432"
     volumes:
       - ./pg_data:/var/lib/postgresql/data
-    restart: "always"
+    restart: "no"
 
   # 4. NESTJS GATEWAY
   nestjs_gateway:
@@ -80,7 +80,7 @@ services:
     image: nginx:alpine
     container_name: nginx_lb
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -113,7 +113,7 @@ services:
       depends_on:
         redis_broker: { condition: service_healthy }
         postgres_db: { condition: service_started }
-      restart: unless-stopped
+      restart: "no"
       ports:
       # "8501:8501" dersen tüm dünyaya (0.0.0.0) açılır.
       # "127.0.0.1:8501:8501" dersen sadece SENİN bilgisayarından (localhost) erişilebilir.

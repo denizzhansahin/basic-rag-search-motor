@@ -71,3 +71,32 @@ pkill ollama
 launchctl unsetenv OLLAMA_HOST
 launchctl unsetenv OLLAMA_NUM_PARALLEL
 launchctl unsetenv OLLAMA_MAX_LOADED_MODELS
+
+
+export OLLAMA_NUM_PARALLEL=2
+export OLLAMA_MAX_LOADED_MODELS=5
+launchctl setenv OLLAMA_HOST "0.0.0.0"
+ollama serve
+
+
+
+
+2. Linux Server (Uzak Sunucu) İçin Yapılandırma
+Linux sunucuda CUDA ve cuDNN kurduğun için muhtemelen Ollama bir systemd servisi olarak çalışıyor. En profesyonel yöntem servis dosyasını güncellemektir:
+
+Servis Düzenleme Modunu Aç:
+
+Bash
+sudo systemctl edit ollama.service
+Açılan ekrana (boşsa bile) şunları yapıştır:
+
+Ini, TOML
+[Service]
+Environment="OLLAMA_HOST=0.0.0.0"
+Environment="OLLAMA_NUM_PARALLEL=5"
+Environment="OLLAMA_MAX_LOADED_MODELS=5"
+Kaydet ve Servisi Yeniden Başlat:
+
+Bash
+sudo systemctl daemon-reload
+sudo systemctl restart ollama
