@@ -20,6 +20,11 @@ KURULUM 2:
 docker_python_redis_nestjs klasörü içinde aşağıdaki komudu çalıştır.
 docker compose up -d
 
+Ardından tekrar ayağa kaldır:
+
+Bash
+docker-compose up -d --build
+
 
 Admin panel ile siteleri ekleyebilirsin. Siteleri ise https:// veya http:// olarak ekle, ana alan adını eklemelisin, tercihi olarak her bir site için varsayılan arama sayfa sayısını değiştirmeyin:
 web_crawler içinde bunu çalıştır:
