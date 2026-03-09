@@ -98,8 +98,8 @@ Açılan ekrana (boşsa bile) şunları yapıştır:
 Ini, TOML
 [Service]
 Environment="OLLAMA_HOST=0.0.0.0"
-Environment="OLLAMA_NUM_PARALLEL=5"
-Environment="OLLAMA_MAX_LOADED_MODELS=5"
+Environment="OLLAMA_NUM_PARALLEL=3"
+Environment="OLLAMA_MAX_LOADED_MODELS=3"
 Kaydet ve Servisi Yeniden Başlat:
 
 Bash

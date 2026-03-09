@@ -57,6 +57,8 @@ services:
     depends_on:
       redis_broker: { condition: service_healthy }
       qdrant: { condition: service_started }
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
     # ... (Diğer servislerin altında)
   
@@ -80,13 +82,11 @@ services:
     image: nginx:alpine
     container_name: nginx_lb
     ports:
-      - "9001:80"
+      - "9000:80" #eskiden 80:80'di
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - nestjs_gateway
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
 
   web_crawler:
@@ -120,4 +120,6 @@ services:
       # "8501:8501" dersen tüm dünyaya (0.0.0.0) açılır.
       # "127.0.0.1:8501:8501" dersen sadece SENİN bilgisayarından (localhost) erişilebilir.
       - "127.0.0.1:8501:8501"
+      extra_hosts:
+      - "host.docker.internal:host-gateway"
       
